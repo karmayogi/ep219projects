@@ -7,7 +7,7 @@ import matplotlib.mlab as mlab
 
 ################Define stuff###################
 e=2.71821
-sigma=100
+sigma=1
 
 def en(x):
 	return 1000*e**(-1*x/10)
@@ -46,7 +46,7 @@ plt.show()
 
 
 
-################## Expected Number Calculation for each energy value of noise##################
+################## Expected Number Calculation for each energy value of NOISE##################
 k=[]
 lv=0
 for i in range(0,len(x)):
@@ -161,13 +161,62 @@ Now put this equal to zero to find Max Likelihood Estimate for sigma
 
 def loglikelihood(sigma1):
 	logsum=0
-	var=0
+	#var=0
 	for i in range(0,len(x)):
-		logsum+= signalf(var+0.5,sigma1)+en(var+0.5)+signalf(var+0.5,sigma1)/(sigma1*np.log(signalf(var+0.5,sigma1)))
-		var+=1
+		logsum +=  y[i]*np.log(signalf(i+0.5,sigma1)+en(i+0.5))-signalf(i+0.5,sigma1)-en(i+0.5)
+		#print (logsum)
+		#var+=1
+	return logsum
 
-plt.plot(loglikelihood(sigma), sigma)
+var=18
+sigma1=1
+i=10
+#print (totalsig[i]+y[i]*signalf(var+0.5,sigma1)/(sigma1*np.log(totalsig[i])))
+#print (loglikelihood(sigma1))
+
+
+logsig = []
+z=[]
+var=0.001
+for i in range(0,100000,1):
+	logsig.append(loglikelihood(i*var))
+	z.append(i*var)
+
+
+imax=np.argmax(logsig)	
+print (imax, z[imax],logsig[imax])
+
+##Since I know that sigma corresponding to 1 sigma interval lies close to 1, I need to look only in that interval.
+## Also i need to take in some tolerance to be abe to pinpoint the value of sigma of the required error interval
+
+
+#####Finding the sigma corresponding to 1 sigma error interval
+for i in range(0, 500):
+	if (abs(logsig[imax]-0.5-logsig[i])<0.03):
+		print (z[i])
+
+
+plt.plot(z, logsig)
+plt.xlabel('Sigma')
+plt.ylabel('Log Likelihood')
+plt.title('Plot of Log Likelihood vs. Sigma with MLE= 0.177')
 plt.show()
+
+
+
+
+
+## Max likelihood estimate comes out to be 0.177 
+## Lower limit of 1 sigma interval comes out 0.147
+## Upper limit of 1 sigma interval comes out 0.206
+
+"""
+Final conclusion:
+Yes the data favours the presence of a dark matter signal
+Reasons:
+The cross section is within reasonable limits and so is the MLE along with the 1 sigma error interval
+"""
+
 
 
 
